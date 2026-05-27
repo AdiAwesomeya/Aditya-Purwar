@@ -25,7 +25,7 @@ public class EllipseGenCode : MonoBehaviour
         float focalDist2c = Vector3.Distance(focus1.position, focus2.position);
         
         // Ensure the total distance is valid
-        if (totalDistance <= focalDist2c+4) totalDistance = focalDist2c + (focus1Code.size)+7f;
+        if (totalDistance <= focalDist2c+(4*focus1Code.size)) totalDistance = focalDist2c + (focus1Code.size*3.5f);
 
         a = totalDistance / 2f;               // Semi-major axis
         float c = focalDist2c / 2f;           // Distance from center to focus
