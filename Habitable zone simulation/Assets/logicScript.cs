@@ -1,3 +1,6 @@
+// 10 AU = 1 unity unit
+
+
 using InputActions;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,7 +21,6 @@ public class logicScript : MonoBehaviour
     } 
     void Update()
     {
-        
         cam.fieldOfView = Mathf.Clamp(cam.fieldOfView - mouseScrollY * zoomSpeed, minZoom, maxZoom);
     }
 
