@@ -129,6 +129,7 @@
 -define:ENABLE_TILEMAP
 -define:ENABLE_TIMELINE
 -define:ENABLE_INPUT_SYSTEM
+-define:ENABLE_LEGACY_INPUT_MANAGER
 -define:TEXTCORE_FONT_ENGINE_1_5_OR_NEWER
 -define:TEXTCORE_TEXT_ENGINE_1_5_OR_NEWER
 -define:TEXTCORE_FONT_ENGINE_1_6_OR_NEWER
@@ -391,6 +392,7 @@
 -r:"/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/NetStandard/compat/2.1.0/shims/netstandard/System.Xml.XPath.XDocument.dll"
 -r:"/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/NetStandard/Extensions/2.0.0/System.Runtime.InteropServices.WindowsRuntime.dll"
 -r:"/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/Scripting/NetStandard/ref/2.1.0/netstandard.dll"
+-r:"Assets/Plugins/One_Sgp4/One_Sgp4.dll"
 -r:"Library/PackageCache/com.unity.collections@aea9d3bd5e19/Unity.Collections.LowLevel.ILSupport/Unity.Collections.LowLevel.ILSupport.dll"
 -r:"Library/PackageCache/com.unity.collections@aea9d3bd5e19/Unity.Collections.Tests/System.IO.Hashing/System.IO.Hashing.dll"
 -r:"Library/PackageCache/com.unity.collections@aea9d3bd5e19/Unity.Collections.Tests/System.Runtime.CompilerServices.Unsafe/System.Runtime.CompilerServices.Unsafe.dll"
@@ -453,10 +455,19 @@
 -analyzer:"/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/BuildPipeline/Unity.SourceGenerators/Unity.SourceGenerators.dll"
 -analyzer:"/Applications/Unity/Hub/Editor/6000.3.10f1/Unity.app/Contents/Resources/BuildPipeline/Unity.SourceGenerators/Unity.UIToolkit.SourceGenerator.dll"
 "Assets/annulusScript.cs"
+"Assets/Eugatnom/GritlineToonShader/Demo/Scripts/RotateInn.cs"
+"Assets/Eugatnom/GritlineToonShader/Demo/Scripts/RotatePlanetDemo.cs"
 "Assets/InputSystem_Actions.cs"
 "Assets/logicScript.cs"
+"Assets/outerScript.cs"
+"Assets/SSScript.cs"
 "Assets/star.cs"
 "Assets/TutorialInfo/Scripts/Readme.cs"
+"Assets/_Main_/ISS Orbit/EarthOrbitCamera.cs"
+"Assets/_Main_/ISS Orbit/EarthRotator.cs"
+"Assets/_Main_/ISS Orbit/ISSOrbitManager.cs"
+"Assets/_Main_/ISS Orbit/ISSTelemetryUI.cs"
+"Assets/_Main_/Mercury Orbit/MercuryOrbitFromHorizons.cs"
 -langversion:9.0
 /deterministic
 /optimize+
