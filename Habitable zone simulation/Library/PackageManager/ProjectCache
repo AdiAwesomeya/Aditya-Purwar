@@ -73,11 +73,15 @@ m_ResolvedPackages:
     - 2.0.10
     - 2.0.11
     - 2.0.12
+    - 2.0.13
+    - 2.0.14
     compatible:
     - 2.0.10
     - 2.0.11
     - 2.0.12
-    recommended: 2.0.12
+    - 2.0.13
+    - 2.0.14
+    recommended: 2.0.14
     deprecated: []
   dependencies:
   - name: com.unity.modules.ai
@@ -277,10 +281,12 @@ m_ResolvedPackages:
     - 2.11.3
     - 2.11.4
     - 2.12.4
+    - 2.13.3
     compatible:
     - 2.11.3
     - 2.11.4
     - 2.12.4
+    - 2.13.3
     recommended: 2.11.4
     deprecated: []
   dependencies: []
@@ -6044,12 +6050,18 @@ m_ResolvedPackages:
     - 2.6.3
     - 2.6.4
     - 2.6.5
+    - 2.6.6
+    - 2.6.7
+    - 2.6.8
     compatible:
     - 2.6.2
     - 2.6.3
     - 2.6.4
     - 2.6.5
-    recommended: 2.6.5
+    - 2.6.6
+    - 2.6.7
+    - 2.6.8
+    recommended: 2.6.8
     deprecated: []
   dependencies:
   - name: com.unity.burst
@@ -6328,12 +6340,16 @@ m_ResolvedPackages:
     - 3.3.0
     - 3.4.0
     - 3.4.1
+    - 3.4.2
+    - 3.5.0
     compatible:
     - 3.2.0
     - 3.2.1
     - 3.3.0
     - 3.4.0
     - 3.4.1
+    - 3.4.2
+    - 3.5.0
     recommended: 3.2.1
     deprecated: []
   dependencies:

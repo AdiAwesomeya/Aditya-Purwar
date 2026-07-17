@@ -18,7 +18,7 @@ public class earthScript : MonoBehaviour
 
     void Update()
     {
-        transform.Rotate(rotationSpeed * Time.deltaTime);
+        transform.Rotate(rotationSpeed * Time.deltaTime * multiplier);
         // 1. Safety check: does the line have points?
         if (ellipseRenderer == null || ellipseRenderer.positionCount == 0) return;
         // 2. Get the specific world position of our current target point
