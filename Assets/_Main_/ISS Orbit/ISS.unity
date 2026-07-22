@@ -159,7 +159,7 @@ MonoBehaviour:
   fallbackLine2: 2 25544  51.6400 100.0000 0004000  90.0000 270.0000 15.50000000000000
   trajectoryDurationMinutes: 95
   trajectoryStepSeconds: 30
-  lineWidth: 0.025
+  lineWidth: 0.1
   positionRefreshSeconds: 1
   simulationTimeScale: 60
   modelRotationOffsetEuler: {x: 0, y: 0, z: 0}
@@ -1112,6 +1112,7 @@ GameObject:
   - component: {fileID: 2070375074}
   - component: {fileID: 2070375073}
   - component: {fileID: 2070375076}
+  - component: {fileID: 2070375077}
   m_Layer: 0
   m_Name: Earth
   m_TagString: Untagged
@@ -1208,6 +1209,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationPeriodSeconds: 240
   rotationAxis: {x: 0, y: 1, z: 0}
+--- !u!135 &2070375077
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2070375071}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5240047
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!198 &3519999722878946621
 ParticleSystem:
   m_ObjectHideFlags: 0
