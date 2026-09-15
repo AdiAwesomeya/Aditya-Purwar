@@ -100,7 +100,8 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
 
     [Header("Camera")]
     [SerializeField] private bool startIn3D = true;
-    [SerializeField] private bool autoFrameAfterSliderChange = true;
+    [Tooltip("Initial view radius in AU, independent of the star sliders. R restores this view.")]
+    [SerializeField, Min(0.01f)] private float referenceViewRadiusAU = 1.7f;
 
     [SerializeField, Range(-180f, 180f)] private float defaultYaw = 35f;
     [SerializeField, Range(-5f, 85f)] private float defaultPitch = 32f;
@@ -111,9 +112,6 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
     [SerializeField, Min(0.01f)] private float orbitSensitivity = 0.18f;
     [SerializeField, Min(0.01f)] private float panSensitivity = 1f;
     [SerializeField, Min(0.01f)] private float zoomSensitivity = 0.18f;
-
-    [Tooltip("When enabled, the optional spheres are hidden in the 2D top view.")]
-    [SerializeField] private bool spheresOnlyIn3D;
 
     [Header("Animation")]
     [SerializeField, Min(0f)] private float visualSmoothTime = 0.18f;
@@ -145,7 +143,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
     private int[] annulusTriangles;
     private Vector3[] circlePoints;
 
-    private readonly MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
+    private MaterialPropertyBlock propertyBlock;
     private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
     private static readonly int ColorId = Shader.PropertyToID("_Color");
     private static readonly int EmissionColorId = Shader.PropertyToID("_EmissionColor");
@@ -153,6 +151,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
     private float cameraYaw;
     private float cameraPitch;
     private float cameraDistance;
+    private float initialCameraDistance;
     private Vector3 cameraPanOffset;
     private bool orbitDragging;
     private bool panDragging;
@@ -187,6 +186,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
 
     private void Start()
     {
+        propertyBlock = new MaterialPropertyBlock();
         ValidateSettings();
         ConfigureStarChildren();
         ConfigureUI();
@@ -215,7 +215,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
             viewModeToggle.onValueChanged.AddListener(OnViewToggleChanged);
         }
 
-        Recalculate(false);
+        Recalculate();
 
         displayedInnerUnits = targetInnerUnits;
         displayedOuterUnits = targetOuterUnits;
@@ -223,7 +223,8 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
 
         cameraYaw = defaultYaw;
         cameraPitch = defaultPitch;
-        cameraDistance = CalculateFitDistance(targetOuterUnits);
+        initialCameraDistance = CalculateFitDistance(referenceViewRadiusAU * unityUnitsPerAU);
+        cameraDistance = initialCameraDistance;
 
         Set3DMode(startIn3D);
         UpdateVisuals();
@@ -235,10 +236,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
         AnimateVisualValues();
         UpdateVisuals();
 
-        if (Is3DMode)
-        {
-            Handle3DCameraInput();
-        }
+        HandleCameraInput();
     }
 
     private void LateUpdate()
@@ -284,7 +282,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
             radiusSlider.SetValueWithoutNotify(StarRadiusSolar);
         }
 
-        Recalculate(autoFrameAfterSliderChange);
+        Recalculate();
     }
 
     public void SetStarTemperatureK(float value)
@@ -296,7 +294,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
             temperatureSlider.SetValueWithoutNotify(StarTemperatureK);
         }
 
-        Recalculate(autoFrameAfterSliderChange);
+        Recalculate();
     }
 
     public void Set3DMode(bool use3D)
@@ -313,28 +311,29 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
             simulationCamera.orthographic = !use3D;
         }
 
-            modeText.text = use3D ? "3D View" : "2D Top View";
-
-        if (spheresOnlyIn3D)
+        if (modeText != null)
         {
-            if (innerBoundarySphere != null)
-            {
-                innerBoundarySphere.gameObject.SetActive(use3D);
-            }
-
-            if (outerBoundarySphere != null)
-            {
-                outerBoundarySphere.gameObject.SetActive(use3D);
-            }
+            modeText.text = use3D ? "3D Shell View" : "2D Ring View";
         }
 
-        if (use3D && autoFrameAfterSliderChange)
-        {
-            cameraDistance = CalculateFitDistance(Mathf.Max(targetOuterUnits, displayedOuterUnits));
-        }
+        // The boundary lines share GameObjects with the spheres in the scene.
+        // Toggle renderers, not GameObjects, so hiding a sphere keeps its 2D line available.
+        SetMeshVisible(annulusMeshFilter != null ? annulusMeshFilter.transform : null, !use3D);
+        if (innerBoundaryLine != null) innerBoundaryLine.enabled = !use3D;
+        if (outerBoundaryLine != null) outerBoundaryLine.enabled = !use3D;
+        SetMeshVisible(innerBoundarySphere, use3D);
+        SetMeshVisible(outerBoundarySphere, use3D);
 
         orbitDragging = false;
         panDragging = false;
+    }
+
+    private static void SetMeshVisible(Transform visual, bool visible)
+    {
+        if (visual != null && visual.TryGetComponent(out MeshRenderer meshRenderer))
+        {
+            meshRenderer.enabled = visible;
+        }
     }
 
     public void ToggleViewMode()
@@ -347,7 +346,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
         cameraYaw = defaultYaw;
         cameraPitch = defaultPitch;
         cameraPanOffset = Vector3.zero;
-        cameraDistance = CalculateFitDistance(Mathf.Max(targetOuterUnits, displayedOuterUnits));
+        cameraDistance = initialCameraDistance;
     }
 
     private void OnViewToggleChanged(bool toggleValue)
@@ -367,6 +366,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
         sphereMeshRadius = Mathf.Max(0.0001f, sphereMeshRadius);
         circleSegments = Mathf.Clamp(circleSegments, 32, 512);
         framePadding = Mathf.Max(1f, framePadding);
+        referenceViewRadiusAU = Mathf.Max(0.01f, referenceViewRadiusAU);
         maximumPitch = Mathf.Max(minimumPitch, maximumPitch);
     }
 
@@ -392,9 +392,13 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
         if (explanationText != null)
         {
             explanationText.text =
-                "Green band: conservative liquid-water habitable zone for an Earth-mass planet. " +
-                "Inside: runaway-greenhouse risk. Outside: maximum CO2 greenhouse warming is insufficient. " +
-                "Clouds, atmospheric composition, magnetic fields, and biology are not simulated.";
+                "Ring (2D) or shell (3D): where an Earth-mass planet could have surface liquid water " +
+                "with a suitable atmosphere; habitability is not guaranteed.\n\n" +
+                "Limits: runaway greenhouse / maximum CO2 greenhouse (Kopparapu 2014). " +
+                "Effective temperature: 2600-7200 K. Radius and temperature vary independently.\n\n" +
+                "R_sun / L_sun: Sun's radius / luminosity. AU: mean Earth-Sun distance. " +
+                "Star size is exaggerated.\n\n" +
+                "Scroll: zoom. Shift-drag: pan. 3D drag: orbit. R: reset view. Sliders keep zoom fixed.";
         }
     }
 
@@ -436,7 +440,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
         }
     }
 
-    private void Recalculate(bool reframeCamera)
+    private void Recalculate()
     {
         // Stefan-Boltzmann law relative to the Sun.
         double radius = StarRadiusSolar;
@@ -469,12 +473,6 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
 
         UpdateReadouts();
         UpdateStarAppearance();
-
-        if (reframeCamera && Is3DMode)
-        {
-            cameraPanOffset = Vector3.zero;
-            cameraDistance = CalculateFitDistance(targetOuterUnits);
-        }
     }
 
     private static double EffectiveFlux(
@@ -506,13 +504,13 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
 
         if (luminosityText != null)
         {
-            luminosityText.text = $"{LuminositySolar:0.000} L_sun";
+            luminosityText.text = $"Luminosity: {LuminositySolar:G4} L_sun";
         }
 
         if (habitableZoneText != null)
         {
             habitableZoneText.text =
-                $"Conservative HZ: {InnerHabitableZoneAU:0.00} - {OuterHabitableZoneAU:0.00} AU";
+                $"Conservative HZ: {InnerHabitableZoneAU:0.000} - {OuterHabitableZoneAU:0.000} AU";
         }
     }
 
@@ -809,7 +807,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
         return Mathf.Abs(divisor) < 0.00001f ? value : value / divisor;
     }
 
-    private void Handle3DCameraInput()
+    private void HandleCameraInput()
     {
         if (simulationCamera == null || Mouse.current == null)
         {
@@ -825,7 +823,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
 
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            orbitDragging = !pointerOverUI && !shiftHeld;
+            orbitDragging = Is3DMode && !pointerOverUI && !shiftHeld;
             panDragging = !pointerOverUI && shiftHeld;
         }
 
@@ -869,7 +867,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
             cameraDistance *= Mathf.Exp(-scrollNotches * zoomSensitivity);
         }
 
-        if (Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+        if (!pointerOverUI && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
         {
             ResetCameraView();
         }
@@ -884,16 +882,12 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
 
         Vector3 center = simulationCenter != null ? simulationCenter.position : transform.position;
         float radius = Mathf.Max(0.1f, displayedOuterUnits);
-        float cameraLimitRadius = Mathf.Max(radius, targetOuterUnits);
+        // Limits are fixed in AU: growing/shrinking the zone must never move the camera.
+        cameraDistance = Mathf.Clamp(cameraDistance, 0.01f * unityUnitsPerAU, 1000f * unityUnitsPerAU);
 
         if (Is3DMode)
         {
             simulationCamera.orthographic = false;
-
-            cameraDistance = Mathf.Clamp(
-                cameraDistance,
-                Mathf.Max(0.1f, radius * 0.2f),
-                Mathf.Max(1f, cameraLimitRadius * 20f));
 
             cameraPitch = Mathf.Clamp(cameraPitch, minimumPitch, maximumPitch);
 
@@ -913,12 +907,12 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
         {
             simulationCamera.orthographic = true;
 
-            float aspect = Mathf.Max(0.01f, simulationCamera.aspect);
+            // Match the perspective scale at the center, retaining zoom across mode switches.
             simulationCamera.orthographicSize =
-                radius * framePadding * Mathf.Max(1f, 1f / aspect);
+                cameraDistance * Mathf.Tan(simulationCamera.fieldOfView * 0.5f * Mathf.Deg2Rad);
 
-            float height = Mathf.Max(10f, radius * 4f);
-            simulationCamera.transform.position = center + (Vector3.up * height);
+            float height = cameraDistance;
+            simulationCamera.transform.position = center + cameraPanOffset + (Vector3.up * height);
             simulationCamera.transform.rotation = Quaternion.LookRotation(
                 Vector3.down,
                 Vector3.forward);

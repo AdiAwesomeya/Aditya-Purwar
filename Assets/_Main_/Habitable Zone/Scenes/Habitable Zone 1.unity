@@ -618,7 +618,7 @@ MonoBehaviour:
   modeText: {fileID: 685652581}
   explanationText: {fileID: 1368729404}
   startIn3D: 0
-  autoFrameAfterSliderChange: 1
+  referenceViewRadiusAU: 1.7
   defaultYaw: 35
   defaultPitch: 32
   minimumPitch: -85
@@ -626,8 +626,7 @@ MonoBehaviour:
   framePadding: 1.25
   orbitSensitivity: 0.25
   panSensitivity: 1
-  zoomSensitivity: 1
-  spheresOnlyIn3D: 0
+  zoomSensitivity: 0.18
   visualSmoothTime: 0.18
 --- !u!1 &407397997
 GameObject:
@@ -1152,7 +1151,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Habitable zone Text
+  m_text: 'Conservative HZ: 0.950 - 1.676 AU'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
   m_sharedMaterial: {fileID: -6471479325630977397, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
@@ -1327,7 +1326,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_text
-      value: Temperature
+      value: Stellar temperature
       objectReference: {fileID: 0}
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_fontSize
@@ -1518,7 +1517,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 2D TOP VIEW
+  m_text: 2D Ring View
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
   m_sharedMaterial: {fileID: -6471479325630977397, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
@@ -1914,7 +1913,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 2 AU
+  m_text: 1.00 R_sun
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
   m_sharedMaterial: {fileID: -6471479325630977397, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
@@ -2156,7 +2155,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Radius
+  m_text: 'An Earth-mass planet could have surface liquid water in this zone with a suitable atmosphere. Habitability is not guaranteed.'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
   m_sharedMaterial: {fileID: -6471479325630977397, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
@@ -2190,11 +2189,11 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 1
   m_fontSizeMax: 20
-  m_fontStyle: 17
-  m_HorizontalAlignment: 4
-  m_VerticalAlignment: 1024
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
-  m_characterSpacing: 5
+  m_characterSpacing: 0
   m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -2666,6 +2665,10 @@ PrefabInstance:
       propertyPath: m_Value
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
+      propertyPath: m_text
+      value: Stellar radius
+      objectReference: {fileID: 0}
     - target: {fileID: 1835563253699665513, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_MaxValue
       value: 3
@@ -2784,7 +2787,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Luminocity: 0'
+  m_text: 'Luminosity: 1 L_sun'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
   m_sharedMaterial: {fileID: -6471479325630977397, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}

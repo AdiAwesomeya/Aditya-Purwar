@@ -1578,8 +1578,8 @@ MonoBehaviour:
     isLocked: 0
   - icon: {fileID: -718923731338941120, guid: 3fe6587c6fd61e34f9aa695ff74f5cac, type: 3}
     title: Habitable Zone
-    body: 'A simulation of the goldilocks zone (where the orbit of a planet has to
-      be in order for there to be liquid water) around a star in 2D and 3D. '
+    body: 'Explore the region around a star where an Earth-mass planet could have
+      surface liquid water with a suitable atmosphere. View it as a 2D ring or 3D shell.'
     sceneName: Habitable Zone 1
     isLocked: 0
   - icon: {fileID: -6103562689817882513, guid: efa80e3119a312841bf99f5d33ce5682, type: 3}
