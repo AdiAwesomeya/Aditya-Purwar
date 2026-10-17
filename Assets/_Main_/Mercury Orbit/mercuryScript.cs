@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using TMPro;
 
 //0.008147
 // Mercury has been increased x2000
@@ -14,6 +15,7 @@ public class mercuryScript : MonoBehaviour
     public float speedConstant;
     public float speed;
     public float multiplier = 1;
+    public TMP_Text simulationSpeedText;
     public Transform sun;
     public MercuryOrbitScript ellipseCode;
     public float timePeriod;
@@ -59,6 +61,7 @@ public class mercuryScript : MonoBehaviour
                 targetIndex = 0;
             }
         }
+        simulationSpeedText.text = $"Time scale: {multiplier:0.##}x";
     }
 
 }

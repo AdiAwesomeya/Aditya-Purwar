@@ -59,8 +59,8 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
     [SerializeField] private float maximumRadiusSolar = 3f;
 
     [SerializeField] private float defaultTemperatureK = 5780f;
-    [SerializeField] private float minimumTemperatureK = 2600f;
-    [SerializeField] private float maximumTemperatureK = 7200f;
+    [SerializeField] private float minimumTemperatureK = 1900f;
+    [SerializeField] private float maximumTemperatureK = 20000f;
 
     [Header("Star Appearance")]
     [Tooltip("If empty, all Renderers below Star Visual Root are found automatically.")]
@@ -313,7 +313,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
 
         if (modeText != null)
         {
-            modeText.text = use3D ? "3D Shell View" : "2D Ring View";
+            modeText.text = use3D ? "Habitable Zone: 3D Shell View" : "Habitable Zone: 2D Ring View";
         }
 
         // The boundary lines share GameObjects with the spheres in the scene.
@@ -359,8 +359,8 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
         minimumRadiusSolar = Mathf.Max(0.01f, minimumRadiusSolar);
         maximumRadiusSolar = Mathf.Max(minimumRadiusSolar, maximumRadiusSolar);
 
-        minimumTemperatureK = Mathf.Clamp(minimumTemperatureK, 2600f, 7200f);
-        maximumTemperatureK = Mathf.Clamp(maximumTemperatureK, minimumTemperatureK, 7200f);
+        minimumTemperatureK = Mathf.Clamp(minimumTemperatureK, 1900f, 20000f);
+        maximumTemperatureK = Mathf.Clamp(maximumTemperatureK, minimumTemperatureK, 20000f);
 
         unityUnitsPerAU = Mathf.Max(0.01f, unityUnitsPerAU);
         sphereMeshRadius = Mathf.Max(0.0001f, sphereMeshRadius);
@@ -392,13 +392,11 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
         if (explanationText != null)
         {
             explanationText.text =
-                "Ring (2D) or shell (3D): where an Earth-mass planet could have surface liquid water " +
-                "with a suitable atmosphere; habitability is not guaranteed.\n\n" +
-                "Limits: runaway greenhouse / maximum CO2 greenhouse (Kopparapu 2014). " +
-                "Effective temperature: 2600-7200 K. Radius and temperature vary independently.\n\n" +
-                "R_sun / L_sun: Sun's radius / luminosity. AU: mean Earth-Sun distance. " +
+                "Ring (2D) or shell (3D): The region around a star where a rocky planet could have surface liquid water, which is essential for life on a planet. " +
+                "However, life is not guaranteed even if it is in the zone.\n\n" +
+                "R_sun: Radius of the sun. \nL_sun: The luminosity of the sun.\nAU: The distance from the Earth to the Sun" +
                 "Star size is exaggerated.\n\n" +
-                "Scroll: zoom. Shift-drag: pan. 3D drag: orbit. R: reset view. Sliders keep zoom fixed.";
+                "Scroll: zoom. \nShift-drag: pan. \n3D drag: orbit. \nR: reset view.";
         }
     }
 
@@ -510,7 +508,7 @@ public sealed class HabitableZoneSimulation : MonoBehaviour
         if (habitableZoneText != null)
         {
             habitableZoneText.text =
-                $"Conservative HZ: {InnerHabitableZoneAU:0.000} - {OuterHabitableZoneAU:0.000} AU";
+                $"Inner radius of zone: {InnerHabitableZoneAU:0.000} AU\nOuter radius of zone: {OuterHabitableZoneAU:0.000} AU\nThickness of ring/shell: {OuterHabitableZoneAU-InnerHabitableZoneAU} AU";
         }
     }
 

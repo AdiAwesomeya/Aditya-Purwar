@@ -2120,7 +2120,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_text
-      value: Semi Major Axis
+      value: Semi Major Axis (largest radius of ellipse)
       objectReference: {fileID: 0}
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_fontSize
@@ -2129,6 +2129,14 @@ PrefabInstance:
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_fontSizeMax
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1835563253699665513, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_Value
@@ -2145,6 +2153,14 @@ PrefabInstance:
     - target: {fileID: 1835563253699665513, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_WholeNumbers
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3092507504329691362, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3092507504329691362, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -0.000061035156
       objectReference: {fileID: 0}
     - target: {fileID: 3856866971351123329, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_AnchorMax.x
@@ -2618,6 +2634,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KeplersLawSimulation
   star: {fileID: 1712027654}
+  starXValue: 0
+  starBaseSize: 2
+  starLooksAtPlanet: 1
   planet: {fileID: 333020834}
   secondFocusMarker: {fileID: 2096204797}
   orbitLine: {fileID: 2032187342}
@@ -2626,9 +2645,10 @@ MonoBehaviour:
   semiMajorAxisAU: 1
   eccentricity: 0.0167
   starMassSolar: 1
-  simulationSpeed: 1
+  simulationSpeed: 300000
   secondsPerYear: 20
-  planetRotationSpeed: {x: 0, y: 100, z: 0}
+  planetRotationPeriodHours: 23.9345
+  planetRotationAxis: {x: 0, y: 1, z: 0}
   semiMajorAxisSlider: {fileID: 1265163136}
   eccentricitySlider: {fileID: 239006642}
   starMassSlider: {fileID: 1584895411}
@@ -2637,7 +2657,7 @@ MonoBehaviour:
   semiMajorAxisRangeAU: {x: 0.5, y: 3}
   eccentricityRange: {x: 0, y: 0.9}
   starMassRangeSolar: {x: 0.25, y: 3}
-  simulationSpeedRange: {x: 0, y: 10}
+  simulationSpeedRange: {x: 1, y: 1000000}
   semiMajorAxisText: {fileID: 1155011077}
   eccentricityText: {fileID: 79338685}
   starMassText: {fileID: 1490799820}
@@ -2656,8 +2676,8 @@ MonoBehaviour:
   cameraDistance: 10
   minCameraDistance: 5
   maxCameraDistance: 80
-  orbitSensitivity: 3
-  zoomSensitivity: 2
+  orbitSensitivity: 10
+  zoomSensitivity: 4
   minCameraPitch: -80
   maxCameraPitch: 80
 --- !u!1 &1578238213
@@ -3565,7 +3585,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_text
-      value: Speed
+      value: Multiplier
       objectReference: {fileID: 0}
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_fontSize

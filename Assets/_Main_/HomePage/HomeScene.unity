@@ -1578,8 +1578,9 @@ MonoBehaviour:
     isLocked: 0
   - icon: {fileID: -718923731338941120, guid: 3fe6587c6fd61e34f9aa695ff74f5cac, type: 3}
     title: Habitable Zone
-    body: 'Explore the region around a star where an Earth-mass planet could have
-      surface liquid water with a suitable atmosphere. View it as a 2D ring or 3D shell.'
+    body: Explore the region around a star where an Earth-mass planet could have
+      surface liquid water with a suitable atmosphere. View it as a 2D ring or 3D
+      shell.
     sceneName: Habitable Zone 1
     isLocked: 0
   - icon: {fileID: -6103562689817882513, guid: efa80e3119a312841bf99f5d33ce5682, type: 3}
@@ -1598,7 +1599,10 @@ MonoBehaviour:
   - icon: {fileID: 4565488893708855530, guid: ecadb6e7354540e418ab48b6b3b1cb17, type: 3}
     title: Stellar Evolution
     body: 'A simulation of a star''s life cycle over millions of years that changes
-      based on the star''s inital mass. '
+      based on the star''s inital mass.
+
+
+      [WORK IN PROGRESS] '
     sceneName: 
     isLocked: 0
   levelBlockPrefab: {fileID: 6041633813398103663, guid: 65f9253dfcc8f8b4c9749309d9ef065e, type: 3}
@@ -3407,7 +3411,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: LEVEL SELECT
+  m_text: SIMULATIONS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
   m_sharedMaterial: {fileID: -6471479325630977397, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
@@ -3523,7 +3527,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8890093512797014549}
   m_HandleRect: {fileID: 2483107212175077691}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

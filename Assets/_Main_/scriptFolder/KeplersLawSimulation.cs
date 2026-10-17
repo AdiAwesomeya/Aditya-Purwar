@@ -18,12 +18,25 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class KeplersLawSimulation : MonoBehaviour
 {
-    private const double TwoPi = System.Math.PI * 2.0;
-    private const float EarthOrbitalSpeedKmPerSec = 29.7847f;
+    private const float GravitationalConstant = 6.67430E-11f;
+    private const float SolarMassKg = 1.98847E30f;
+    private const float AstronomicalUnitMeters = 1.495978707E11f;
+    private const float SecondsPerYearSI = 31557600f;
+    private const float MinimumValue = 0.000001f;
 
     [Header("Scene References")]
     [Tooltip("The star/Sun. It remains at one focus of the ellipse.")]
     [SerializeField] private Transform star;
+
+    [Header("Star (focus1) Behaviour")]
+    [Tooltip("World-space X coordinate for the star, matching the old focus1script xValue.")]
+    [SerializeField] private float starXValue = 0f;
+
+    [Tooltip("Base uniform scale of the star at one solar mass, matching the old focus1script size.")]
+    [SerializeField, Min(0.001f)] private float starBaseSize = 2f;
+
+    [Tooltip("If enabled, the star continuously faces the planet, matching the old focus1script LookAt behaviour.")]
+    [SerializeField] private bool starLooksAtPlanet = true;
 
     [Tooltip("The orbiting planet/Earth model.")]
     [SerializeField] private Transform planet;
@@ -51,14 +64,18 @@ public class KeplersLawSimulation : MonoBehaviour
     [Tooltip("Central-star mass in solar masses.")]
     [SerializeField, Min(0.01f)] private float starMassSolar = 1f;
 
-    [Tooltip("Playback multiplier. 1 means one simulated year takes SecondsPerYear real seconds.")]
+    [Tooltip("Time-scale multiplier, matching Code 2. 1 = normal speed; 1000000 = one million times faster.")]
     [SerializeField, Min(0f)] private float simulationSpeed = 1f;
 
     [Tooltip("Real seconds used to represent one simulated year when Simulation Speed = 1.")]
     [SerializeField, Min(0.1f)] private float secondsPerYear = 20f;
 
-    [Header("Planet Appearance")]
-    [SerializeField] private Vector3 planetRotationSpeed = new Vector3(0f, 100f, 0f);
+    [Header("Planet Rotation")]
+    [Tooltip("Planet's sidereal rotation period in hours. Earth's rotation relative to distant stars is about 23.9345 hours.")]
+    [SerializeField, Min(0.001f)] private float planetRotationPeriodHours = 23.9345f;
+
+    [Tooltip("Local axis around which the planet rotates. The direction is used; the vector magnitude is ignored.")]
+    [SerializeField] private Vector3 planetRotationAxis = Vector3.up;
 
     [Header("Sliders")]
     [SerializeField] private Slider semiMajorAxisSlider;
@@ -70,8 +87,8 @@ public class KeplersLawSimulation : MonoBehaviour
     [SerializeField] private bool configureSliderRangesAutomatically = true;
     [SerializeField] private Vector2 semiMajorAxisRangeAU = new Vector2(0.5f, 3f);
     [SerializeField] private Vector2 eccentricityRange = new Vector2(0f, 0.9f);
-    [SerializeField] private Vector2 starMassRangeSolar = new Vector2(0.25f, 3f);
-    [SerializeField] private Vector2 simulationSpeedRange = new Vector2(0f, 10f);
+    [SerializeField] private Vector2 starMassRangeSolar = new Vector2(0.01f, 18f);
+    [SerializeField] private Vector2 simulationSpeedRange = new Vector2(0f, 1000000f);
 
     [Header("UI Text - Slider Values")]
     [SerializeField] private TMP_Text semiMajorAxisText;
@@ -115,7 +132,8 @@ public class KeplersLawSimulation : MonoBehaviour
     public float CurrentDistanceAU { get; private set; }
     public float CurrentSpeedKmPerSec { get; private set; }
 
-    private double meanAnomaly;
+    private int targetIndex = 0;
+    private float speedConstant;
     private float cameraYaw;
     private float cameraPitch = 25f;
     private bool cameraDragging;
@@ -139,6 +157,7 @@ public class KeplersLawSimulation : MonoBehaviour
             cameraPitch = NormalizeAngle(euler.x);
         }
 
+        ApplyStarTransform();
         RebuildSimulation(resetPlanetPosition: true);
     }
 
@@ -146,6 +165,7 @@ public class KeplersLawSimulation : MonoBehaviour
     {
         UpdateOrbitalMotion();
         RotatePlanet();
+        ApplyStarTransform();
 
         if (controlCamera)
             HandleCameraInput();
@@ -168,13 +188,21 @@ public class KeplersLawSimulation : MonoBehaviour
 
     private void ConfigureSliders()
     {
-        if (!configureSliderRangesAutomatically)
-            return;
+        // Keep the optional auto-configuration setting for the orbit-property sliders.
+        // Unity serializes old Inspector values, so changing simulationSpeedRange's code
+        // default alone will not update an existing scene's Slider. Set this range directly.
+        if (configureSliderRangesAutomatically)
+        {
+            ConfigureSlider(semiMajorAxisSlider, semiMajorAxisRangeAU.x, semiMajorAxisRangeAU.y, false);
+            ConfigureSlider(eccentricitySlider, eccentricityRange.x, Mathf.Min(0.99f, eccentricityRange.y), false);
+            ConfigureSlider(starMassSlider, starMassRangeSolar.x, starMassRangeSolar.y, false);
+        }
 
-        ConfigureSlider(semiMajorAxisSlider, semiMajorAxisRangeAU.x, semiMajorAxisRangeAU.y, false);
-        ConfigureSlider(eccentricitySlider, eccentricityRange.x, Mathf.Min(0.99f, eccentricityRange.y), false);
-        ConfigureSlider(starMassSlider, starMassRangeSolar.x, starMassRangeSolar.y, false);
-        ConfigureSlider(simulationSpeedSlider, simulationSpeedRange.x, simulationSpeedRange.y, false);
+        // These parameter ranges are enforced even if the scene has older serialized values.
+        // Mass is measured in solar masses; the range is useful for exploring a wide range
+        // of central-star masses. The time multiplier supports up to 1,000,000x.
+        ConfigureSlider(starMassSlider, 0.01f, 18f, false);
+        ConfigureSlider(simulationSpeedSlider, 0f, 1000000f, false);
     }
 
     private static void ConfigureSlider(Slider slider, float min, float max, bool wholeNumbers)
@@ -244,20 +272,21 @@ public class KeplersLawSimulation : MonoBehaviour
 
     public void SetStarMass(float value)
     {
-        starMassSolar = Mathf.Max(0.01f, value);
+        starMassSolar = Mathf.Clamp(value, 0.01f, 18f);
         RecalculateOrbitProperties();
+        ApplyStarTransform();
         UpdateAllText();
     }
 
     public void SetSimulationSpeed(float value)
     {
-        simulationSpeed = Mathf.Max(0f, value);
+        simulationSpeed = Mathf.Clamp(value, 1f, 1000000f);
         UpdateAllText();
     }
 
     public void ResetOrbit()
     {
-        meanAnomaly = 0.0;
+        targetIndex = 0;
         RebuildSimulation(resetPlanetPosition: true);
     }
 
@@ -273,9 +302,8 @@ public class KeplersLawSimulation : MonoBehaviour
         UpdateSecondFocusMarker();
 
         if (resetPlanetPosition)
-            meanAnomaly = 0.0;
+            InitialisePlanetOnOrbit();
 
-        UpdatePlanetFromMeanAnomaly();
         UpdateAllText();
     }
 
@@ -287,11 +315,15 @@ public class KeplersLawSimulation : MonoBehaviour
         PerihelionAU = semiMajorAxisAU * (1f - eccentricity);
         AphelionAU = semiMajorAxisAU * (1f + eccentricity);
 
-        // Third law in astronomical units:
-        // P^2 = a^3 / M, where P is years and M is solar masses.
-        OrbitalPeriodYears = Mathf.Sqrt(
-            (semiMajorAxisAU * semiMajorAxisAU * semiMajorAxisAU) /
-            Mathf.Max(0.0001f, starMassSolar));
+        // Kepler's third law using the same gravitational equation as Code 2.
+        float massKg = starMassSolar * SolarMassKg;
+        float aMeters = semiMajorAxisAU * AstronomicalUnitMeters;
+        float periodInsideSqrt = ((4f * Mathf.PI * Mathf.PI) /
+                                  Mathf.Max(MinimumValue, massKg * GravitationalConstant))
+                                 * aMeters * aMeters * aMeters;
+        OrbitalPeriodYears = IsValidFloat(periodInsideSqrt) && periodInsideSqrt > 0f
+            ? Mathf.Sqrt(periodInsideSqrt) / SecondsPerYearSI
+            : 0f;
     }
 
     private void UpdateOrbitalMotion()
@@ -299,65 +331,129 @@ public class KeplersLawSimulation : MonoBehaviour
         if (planet == null || star == null || simulationSpeed <= 0f)
             return;
 
-        // At playback speed 1, a 1-year orbit completes in secondsPerYear real seconds.
-        // Larger/smaller orbital periods naturally take proportionally more/less time.
-        float realSecondsForOrbit = Mathf.Max(0.001f, OrbitalPeriodYears * secondsPerYear / simulationSpeed);
-        double meanMotionPerRealSecond = TwoPi / realSecondsForOrbit;
+        if (orbitLine == null || star == null || planet == null || orbitLine.positionCount <= 0)
+            return;
 
-        meanAnomaly += meanMotionPerRealSecond * Time.deltaTime;
-        meanAnomaly %= TwoPi;
+        if (targetIndex >= orbitLine.positionCount)
+            targetIndex = 0;
 
-        UpdatePlanetFromMeanAnomaly();
+        Vector3 targetPos = orbitLine.GetPosition(targetIndex);
+        if (!IsValidVector(targetPos))
+        {
+            Debug.LogError($"Invalid ellipse point at index {targetIndex}: {targetPos}");
+            GoToNextPoint();
+            return;
+        }
+
+        float side1 = Vector3.Distance(planet.position, star.position);
+        float side2 = Vector3.Distance(targetPos, star.position);
+        float base1 = Vector3.Distance(planet.position, targetPos);
+
+        if (base1 <= 0.001f)
+        {
+            GoToNextPoint();
+            return;
+        }
+
+        // Calculate the period using the same gravitational equation as Code 2.
+        float massKg = starMassSolar * SolarMassKg;
+        float aMeters = semiMajorAxisAU * AstronomicalUnitMeters;
+        float periodInsideSqrt = ((4f * Mathf.PI * Mathf.PI) / (massKg * GravitationalConstant))
+                                 * aMeters * aMeters * aMeters;
+
+        if (periodInsideSqrt <= 0f || !IsValidFloat(periodInsideSqrt))
+            return;
+
+        float periodSeconds = Mathf.Sqrt(periodInsideSqrt);
+        if (!IsValidFloat(periodSeconds) || periodSeconds <= MinimumValue)
+            return;
+
+        OrbitalPeriodYears = periodSeconds / SecondsPerYearSI;
+        // Use Code 2's physical orbital period directly. The multiplier below speeds up
+        // simulated time; it must not alter the period or the Kepler-law calculations.
+        speedConstant = (Mathf.PI * semiMajorAxisAU * unityUnitsPerAU
+                         * SemiMinorAxisAU * unityUnitsPerAU) / periodSeconds;
+
+        if (!IsValidFloat(speedConstant) || Mathf.Abs(speedConstant) <= MinimumValue)
+            return;
+
+        // Heron's formula calculates the triangle swept out by the star, planet,
+        // and the next point on the orbit, matching Code 2's movement logic.
+        // The multiplier is applied only after calculating the physical segment speed,
+        // so it changes playback time-scale without changing the orbit or Kepler period.
+        float s = (side1 + side2 + base1) / 2f;
+        float areaSquared = s * (s - side1) * (s - side2) * (s - base1);
+        float area = Mathf.Sqrt(Mathf.Max(0f, areaSquared));
+
+        if (!IsValidFloat(area))
+            return;
+
+        float timeTaken = area / speedConstant;
+        if (timeTaken <= MinimumValue)
+        {
+            GoToNextPoint();
+            return;
+        }
+
+        float movementSpeed = (base1 / timeTaken) * simulationSpeed; // Code 2: multiplier scales time, not orbital physics.
+        if (!IsValidFloat(movementSpeed))
+            return;
+
+        movementSpeed = Mathf.Max(0f, movementSpeed);
+        float unscaledMovementSpeed = movementSpeed / Mathf.Max(0.0001f, simulationSpeed);
+        CurrentSpeedKmPerSec = unscaledMovementSpeed / Mathf.Max(0.0001f, unityUnitsPerAU)
+                               * (AstronomicalUnitMeters / 1000f);
+        CurrentDistanceAU = side1 / Mathf.Max(0.0001f, unityUnitsPerAU);
+
+        Vector3 newPosition = Vector3.MoveTowards(
+            planet.position,
+            targetPos,
+            movementSpeed * Time.deltaTime);
+
+        if (IsValidVector(newPosition))
+            planet.position = newPosition;
+
+        if (Vector3.Distance(planet.position, targetPos) < 0.1f)
+            GoToNextPoint();
+
         UpdateDynamicText();
     }
 
-    private void UpdatePlanetFromMeanAnomaly()
+    private void InitialisePlanetOnOrbit()
     {
-        if (planet == null || star == null)
+        if (planet == null || orbitLine == null || orbitLine.positionCount <= 0)
             return;
 
-        // Solve Kepler's equation: M = E - e sin(E).
-        double E = SolveEccentricAnomaly(meanAnomaly, eccentricity);
+        targetIndex = 0;
+        Vector3 firstPoint = orbitLine.GetPosition(0);
+        if (IsValidVector(firstPoint))
+            planet.position = firstPoint;
 
-        double cosE = System.Math.Cos(E);
-        double sinE = System.Math.Sin(E);
-
-        // Coordinates relative to ellipse CENTER in AU.
-        // x = a(cosE - e), z = b sinE places the STAR at the origin/focus.
-        // Therefore the planet coordinates are directly relative to the star.
-        float xAU = semiMajorAxisAU * ((float)cosE - eccentricity);
-        float zAU = SemiMinorAxisAU * (float)sinE;
-
-        Vector3 relativePosition = new Vector3(xAU, 0f, zAU) * unityUnitsPerAU;
-        planet.position = star.position + relativePosition;
-
-        CurrentDistanceAU = Mathf.Max(0.0001f, semiMajorAxisAU * (1f - eccentricity * (float)cosE));
-
-        // Vis-viva equation in convenient solar-system units.
-        // Earth's circular speed at 1 AU around 1 solar mass = 29.7847 km/s.
-        float visVivaTerm = starMassSolar * (2f / CurrentDistanceAU - 1f / semiMajorAxisAU);
-        CurrentSpeedKmPerSec = visVivaTerm > 0f
-            ? EarthOrbitalSpeedKmPerSec * Mathf.Sqrt(visVivaTerm)
-            : 0f;
+        // Start by moving toward the next point, as in Code 2.
+        GoToNextPoint();
     }
 
-    private static double SolveEccentricAnomaly(double M, double e)
+    private void GoToNextPoint()
     {
-        // Newton-Raphson. 8 iterations is more than enough for e < 0.99 here.
-        double E = e < 0.8 ? M : System.Math.PI;
-
-        for (int i = 0; i < 8; i++)
+        if (orbitLine == null || orbitLine.positionCount <= 0)
         {
-            double f = E - e * System.Math.Sin(E) - M;
-            double derivative = 1.0 - e * System.Math.Cos(E);
-
-            if (System.Math.Abs(derivative) < 1e-12)
-                break;
-
-            E -= f / derivative;
+            targetIndex = 0;
+            return;
         }
 
-        return E;
+        targetIndex++;
+        if (targetIndex >= orbitLine.positionCount)
+            targetIndex = 0;
+    }
+
+    private static bool IsValidFloat(float value)
+    {
+        return !float.IsNaN(value) && !float.IsInfinity(value);
+    }
+
+    private static bool IsValidVector(Vector3 value)
+    {
+        return IsValidFloat(value.x) && IsValidFloat(value.y) && IsValidFloat(value.z);
     }
 
     private void DrawOrbit()
@@ -387,6 +483,28 @@ public class KeplersLawSimulation : MonoBehaviour
         }
     }
 
+    private void ApplyStarTransform()
+    {
+        if (star == null)
+            return;
+
+        // Integrated behaviour from the old focus1script:
+        // 1) set a uniform scale, 2) lock the star's world X coordinate, and
+        // 3) optionally point the star toward the planet.
+        // Mass scales the visual size relative to starBaseSize at one solar mass.
+        // The cube-root relationship is only a visual convention for this simulation.
+        float massScale = Mathf.Pow(Mathf.Max(0.000001f, starMassSolar), 1f / 3f);
+        float visualSize = Mathf.Max(0.001f, starBaseSize) * massScale;
+        star.localScale = new Vector3(visualSize, visualSize, visualSize);
+
+        Vector3 position = star.position;
+        position.x = starXValue;
+        star.position = position;
+
+        if (starLooksAtPlanet && planet != null)
+            star.LookAt(planet);
+    }
+
     private void UpdateSecondFocusMarker()
     {
         if (secondFocusMarker == null || star == null)
@@ -399,10 +517,22 @@ public class KeplersLawSimulation : MonoBehaviour
 
     private void RotatePlanet()
     {
-        if (planet == null)
+        if (planet == null || simulationSpeed <= 0f)
             return;
 
-        planet.Rotate(planetRotationSpeed * Time.deltaTime, Space.Self);
+        // Orbital movement is calculated using physical seconds (the period from
+        // Kepler's third law), so rotation must use the same simulated time scale.
+        // Earth completes one sidereal rotation in about 23.9345 hours, rather
+        // than rotating at an arbitrary 100 degrees per real-time second.
+        float rotationPeriodSeconds = Mathf.Max(0.001f, planetRotationPeriodHours * 3600f);
+        float degreesThisFrame = (360f / rotationPeriodSeconds)
+                                 * Time.deltaTime * simulationSpeed;
+
+        Vector3 axis = planetRotationAxis.sqrMagnitude > 0.000001f
+            ? planetRotationAxis.normalized
+            : Vector3.up;
+
+        planet.Rotate(axis * degreesThisFrame, Space.Self);
     }
 
     // ---------------------------------------------------------------------
@@ -418,10 +548,10 @@ public class KeplersLawSimulation : MonoBehaviour
             eccentricityText.text = $"Eccentricity (e): {eccentricity:0.000}";
 
         if (starMassText != null)
-            starMassText.text = $"Star mass: {starMassSolar:0.00} M_sun";
+            starMassText.text = $"Star mass: {starMassSolar:0.00} Solar Masses";
 
         if (simulationSpeedText != null)
-            simulationSpeedText.text = $"Simulation speed: {simulationSpeed:0.00}x";
+            simulationSpeedText.text = $"Time scale: {simulationSpeed:0.##}x";
 
         if (semiMinorAxisText != null)
             semiMinorAxisText.text = $"Semi-minor axis (b): {SemiMinorAxisAU:0.00} AU";
@@ -444,15 +574,15 @@ public class KeplersLawSimulation : MonoBehaviour
                           Mathf.Max(0.0001f, semiMajorAxisAU * semiMajorAxisAU * semiMajorAxisAU);
 
             keplerThirdLawText.text =
-                $"Kepler III: P^2/a^3 = {ratio:0.000} = 1/M";
+                "Scroll: zoom.\n3D drag: orbit.";
         }
 
         if (lawExplanationText != null)
         {
             lawExplanationText.text =
-                "Kepler's 1st Law: the planet follows an ellipse with the star at one focus.\n" +
-                "Kepler's 2nd Law: equal areas are swept in equal times, so the planet moves fastest near perihelion.\n" +
-                "Kepler's 3rd Law: P² = a³/M for a planet orbiting a star of mass M.";
+                "Kepler's 1st Law: The orbit of a planet follows an ellipse with the sun as one of its foci.\n" +
+                "Kepler's 2nd Law: A line joining a star to a planet sweeps out equal areas in equal intervals of time.\n(the closer the planet is to the star, the faster it will move)\n" +
+                "Kepler's 3rd Law: T² is directly proportional to a³, where T is the time it takes for a planet to fully complete one orbit, and a is the largest radius of the ellipse.";
         }
 
         UpdateDynamicText();
@@ -541,8 +671,8 @@ public class KeplersLawSimulation : MonoBehaviour
         orbitSegments = Mathf.Clamp(orbitSegments, 32, 512);
         semiMajorAxisAU = Mathf.Max(0.01f, semiMajorAxisAU);
         eccentricity = Mathf.Clamp(eccentricity, 0f, 0.99f);
-        starMassSolar = Mathf.Max(0.01f, starMassSolar);
-        simulationSpeed = Mathf.Max(0f, simulationSpeed);
+        starMassSolar = Mathf.Clamp(starMassSolar, 0.01f, 18);
+        simulationSpeed = Mathf.Clamp(simulationSpeed, 1f, 1000000f);
         secondsPerYear = Mathf.Max(0.1f, secondsPerYear);
         minCameraDistance = Mathf.Max(0.1f, minCameraDistance);
         maxCameraDistance = Mathf.Max(minCameraDistance, maxCameraDistance);

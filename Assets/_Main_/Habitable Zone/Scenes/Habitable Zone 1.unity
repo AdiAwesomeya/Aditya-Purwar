@@ -592,10 +592,10 @@ MonoBehaviour:
   annulusYOffset: 0.02
   defaultRadiusSolar: 1
   minimumRadiusSolar: 0.1
-  maximumRadiusSolar: 3
+  maximumRadiusSolar: 5
   defaultTemperatureK: 5780
-  minimumTemperatureK: 2600
-  maximumTemperatureK: 7200
+  minimumTemperatureK: 1900
+  maximumTemperatureK: 10000
   starRenderers: []
   starParticleSystems: []
   autoFindStarChildren: 1
@@ -626,7 +626,7 @@ MonoBehaviour:
   framePadding: 1.25
   orbitSensitivity: 0.25
   panSensitivity: 1
-  zoomSensitivity: 0.18
+  zoomSensitivity: 1
   visualSmoothTime: 0.18
 --- !u!1 &407397997
 GameObject:
@@ -1180,9 +1180,9 @@ MonoBehaviour:
     serializedVersion: 2
     rgba: 4294967295
   m_fontSize: 20
-  m_fontSizeBase: 44
+  m_fontSizeBase: 20
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 1
   m_fontSizeMax: 20
   m_fontStyle: 17
@@ -1322,7 +1322,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 157452891700868476, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.000091552734
+      value: 0.000061035156
       objectReference: {fileID: 0}
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_text
@@ -1330,7 +1330,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_fontSize
-      value: 19.15
+      value: 12.75
       objectReference: {fileID: 0}
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_fontStyle
@@ -1545,7 +1545,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 48.55
+  m_fontSize: 44.45
   m_fontSizeBase: 44
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2132,8 +2132,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.83347917, y: 0.034258194}
   m_AnchorMax: {x: 0.9897298, y: 0.544}
-  m_AnchoredPosition: {x: -0.19995117, y: 0.0289917}
-  m_SizeDelta: {x: 0, y: 0.0670166}
+  m_AnchoredPosition: {x: -0.19995117, y: -50}
+  m_SizeDelta: {x: 0, y: -49.961975}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1368729404
 MonoBehaviour:
@@ -2155,7 +2155,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'An Earth-mass planet could have surface liquid water in this zone with a suitable atmosphere. Habitability is not guaranteed.'
+  m_text: An Earth-mass planet could have surface liquid water in this zone with
+    a suitable atmosphere. Habitability is not guaranteed.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
   m_sharedMaterial: {fileID: -6471479325630977397, guid: c18d470c4d95ced49aa122411cabfd3b, type: 2}
@@ -2528,7 +2529,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.46800002, y: 0.89900005}
   m_AnchorMax: {x: 0.98920894, y: 0.90500003}
-  m_AnchoredPosition: {x: -2.2999878, y: 0.3999939}
+  m_AnchoredPosition: {x: -2.3000488, y: 0.39996338}
   m_SizeDelta: {x: -2, y: 0}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1502614960
@@ -2659,15 +2660,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 157452891700868476, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0.000091552734
-      objectReference: {fileID: 0}
-    - target: {fileID: 1835563253699665513, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
-      propertyPath: m_Value
-      value: 1
+      value: 0.000061035156
       objectReference: {fileID: 0}
     - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_text
       value: Stellar radius
+      objectReference: {fileID: 0}
+    - target: {fileID: 1500775257907135245, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
+      propertyPath: m_fontSize
+      value: 18.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1835563253699665513, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
+      propertyPath: m_Value
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1835563253699665513, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_MaxValue
@@ -2691,7 +2696,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3856866971351123329, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 2.804535
+      value: 2.8045654
       objectReference: {fileID: 0}
     - target: {fileID: 5851413718176184601, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_AnchorMax.x
@@ -3015,7 +3020,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2989519610064820009, guid: e8fa585e4f538ba41bad94c775ade37b, type: 3}
       propertyPath: m_fontSize
-      value: 26
+      value: 23.65
       objectReference: {fileID: 0}
     - target: {fileID: 8828890820274019030, guid: e8fa585e4f538ba41bad94c775ade37b, type: 3}
       propertyPath: m_Pivot.x

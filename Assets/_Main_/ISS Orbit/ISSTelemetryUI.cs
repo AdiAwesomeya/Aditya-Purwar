@@ -34,6 +34,8 @@ public class ISSTelemetryUI : MonoBehaviour
     [SerializeField] private bool useEarthRotationForLatLong = true;
     [SerializeField] private bool showApproxText = true;
 
+    public ISSOrbitManager isscode;
+
     private Vector3 previousPosition;
     private float previousTime;
     private float currentSpeedKmh;
@@ -63,6 +65,7 @@ public class ISSTelemetryUI : MonoBehaviour
 
     private void Update()
     {
+        simulationTimeScale = isscode.simulationTimeScale;
         timer += Time.deltaTime;
 
         if (timer >= updateInterval)
@@ -95,17 +98,16 @@ public class ISSTelemetryUI : MonoBehaviour
         string approxLabel = showApproxText ? "Approx. " : "";
 
         string uiText =
-            $"MISSION CONTROL — ISS TRACKER\n\n" +
+            $"MISSION CONTROL: ISS TRACKER\n\n" +
             $"Satellite: {satelliteName}\n" +
             $"NORAD ID: {noradId}\n" +
-            $"Source: {dataSource}\n" +
             $"Status: Live Prediction\n\n" +
-            $"{approxLabel}Latitude: {latitudeText}\n" +
-            $"{approxLabel}Longitude: {longitudeText}\n" +
+            $"{approxLabel}Latitude: {latitude}Ëš N\n" +
+            $"{approxLabel}Longitude: {longitude}Ëš E\n" +
             $"Altitude: {altitudeKm:0} km\n" +
             $"Velocity: {currentSpeedKmh:0} km/h\n" +
             $"Orbit Type: Low Earth Orbit\n" +
-            $"Inclination: 51.6°\n" +
+            $"Inclination: 51.6Ëš\n" +
             $"Orbit Period: ~90 min\n\n" +
             $"UTC Time: {utcTime}\n" +
             $"Simulation Speed: {simulationTimeScale:0.#}x\n" +
@@ -165,13 +167,13 @@ public class ISSTelemetryUI : MonoBehaviour
     private string FormatLatitude(float latitude)
     {
         string direction = latitude >= 0f ? "N" : "S";
-        return $"{Mathf.Abs(latitude):0.00}° {direction}";
+        return $"{Mathf.Abs(latitude):0.00}ï¿½ {direction}";
     }
 
     private string FormatLongitude(float longitude)
     {
         string direction = longitude >= 0f ? "E" : "W";
-        return $"{Mathf.Abs(longitude):0.00}° {direction}";
+        return $"{Mathf.Abs(longitude):0.00}ï¿½ {direction}";
     }
 
     private float NormalizeLongitude(float longitude)
