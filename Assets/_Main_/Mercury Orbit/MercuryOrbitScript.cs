@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class MercuryOrbitScript : MonoBehaviour
 {
+    private const float SemiMajorAxis = 386.78f;
+    private const float FocusDistance = 79.53f;
+    private const float SemiMinorAxis = 378.52f;
     public Transform sun;
     public Transform mercury;
     public float totalDistance = 774f; // Sum of distances to foci (must be > distance between foci)
@@ -13,23 +16,34 @@ public class MercuryOrbitScript : MonoBehaviour
     public mercuryScript mercScript;
     public Transform reference;
 
-    void Awake() => lr = GetComponent<LineRenderer>();
+    void Awake()
+    {
+        lr = GetComponent<LineRenderer>();
+        a = SemiMajorAxis;
+        b = SemiMinorAxis;
+        eccentricity = FocusDistance / SemiMajorAxis;
+    }
 
     void Update()
     {
-        if (sun == null || mercury == null) return;
+        if (sun == null || reference == null || lr == null) return;
         DrawEllipse();
+    }
+
+    public Vector3 PositionAtEccentricAnomaly(double anomaly)
+    {
+        Vector3 center = reference.position;
+        Quaternion rotation = Quaternion.LookRotation((center - sun.position).normalized, Vector3.up);
+        Vector3 point = new Vector3(
+            (float)(b * System.Math.Sin(anomaly)), 0f,
+            (float)(-a * System.Math.Cos(anomaly)));
+        return center + rotation * point;
     }
 
     void DrawEllipse()
     {
 
         // Ensure the total distance is valid
-
-        a = 386.78f;               // Semi-major axis
-        float c = 79.53f;         // Distance from center to focus
-        b = 378.52f;      // Semi-minor axis
-        eccentricity = c/a;
 
         Vector3 center = reference.position;
         // Vector3 direction = (mercury.position - sun.position).normalized;

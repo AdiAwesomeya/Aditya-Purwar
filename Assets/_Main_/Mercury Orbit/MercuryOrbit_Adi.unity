@@ -1075,11 +1075,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1835563253699665513, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_Value
-      value: 1
+      value: 9615447
       objectReference: {fileID: 0}
     - target: {fileID: 1835563253699665513, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_MaxValue
-      value: 1.2616e+9
+      value: 2.28e+7
       objectReference: {fileID: 0}
     - target: {fileID: 1835563253699665513, guid: 8e01d7bc3e3b2cb46b2d8080f63b9068, type: 3}
       propertyPath: m_MinValue
@@ -1525,7 +1525,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::mercuryScript
   rotationSpeed: {x: 0, y: -0.000071, z: 0}
-  ellipseRenderer: {fileID: 955480339}
   speedConstant: 0
   speed: 0
   multiplier: 9615447
@@ -1534,7 +1533,6 @@ MonoBehaviour:
   ellipseCode: {fileID: 955480341}
   timePeriod: 0
   constant1: 0
-  targetIndex: 75
 --- !u!1001 &1934546800
 PrefabInstance:
   m_ObjectHideFlags: 0
